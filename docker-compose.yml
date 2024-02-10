@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  mlflow:
+    image: fed-ff-mlflow
+    container_name: fed-ff-mlflow
+    restart: always
+    user: root
+    build: 
+      context: .
+      dockerfile: Dockerfile.mlflow
+      network: host
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_CONTAINER_PORT
+      - MLFLOW_DB
+      - MLFLOW_HOST_PORT
+      - MLFLOW_CONTAINER_IP
+      - MLFLOW_CONTAINER_PORT
+      - MLFLOW_ARTIFICATS_DIR
+      - HOST_VOLUME_MOUNT_POINT
+    depends_on:
+      - db
+    ports:
+      - "${MLFLOW_HOST_PORT}:${MLFLOW_CONTAINER_PORT}"
+    volumes:
+      - ${HOST_VOLUME_MOUNT_POINT}${MLFLOW_ARTIFICATS_DIR}:${MLFLOW_ARTIFICATS_DIR}:Z
+    entrypoint: mlflow server --port ${MLFLOW_CONTAINER_PORT} --host ${MLFLOW_CONTAINER_IP} --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_CONTAINER_PORT}/${MLFLOW_DB} --default-artifact-root file://${MLFLOW_ARTIFICATS_DIR}
+
+  db:
+    image: postgres:12.3
+    container_name: fed-ff-db
+    restart: always
+    user: root
+    build:
+      context: .
+      dockerfile: Dockerfile.postgresql
+      network: host
+    env_file:
+      - .env
+    environment:
+      - HOST_VOLUME_MOUNT_POINT
+      - POSTGRES_CONTAINER_PORT
+      - POSTGRES_HOST_PORT
+      - POSTGRES_VOLUME
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
+      - PGDATA
+    ports:
+      - "${POSTGRES_HOST_PORT}:${POSTGRES_CONTAINER_PORT}"
+    volumes:
+      - ${HOST_VOLUME_MOUNT_POINT}${POSTGRES_VOLUME}:${PGDATA}:Z
+    command: -p ${POSTGRES_CONTAINER_PORT}
