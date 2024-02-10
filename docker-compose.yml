@@ -16,7 +16,7 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_CONTAINER_PORT
-      - MLFLOW_DB
+      - MLFLOW_DB_NAME
       - MLFLOW_HOST_PORT
       - MLFLOW_CONTAINER_IP
       - MLFLOW_CONTAINER_PORT
@@ -28,7 +28,7 @@ services:
       - "${MLFLOW_HOST_PORT}:${MLFLOW_CONTAINER_PORT}"
     volumes:
       - ${HOST_VOLUME_MOUNT_POINT}${MLFLOW_ARTIFICATS_DIR}:${MLFLOW_ARTIFICATS_DIR}:Z
-    entrypoint: mlflow server --port ${MLFLOW_CONTAINER_PORT} --host ${MLFLOW_CONTAINER_IP} --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_CONTAINER_PORT}/${MLFLOW_DB} --default-artifact-root file://${MLFLOW_ARTIFICATS_DIR}
+    entrypoint: mlflow server --port ${MLFLOW_CONTAINER_PORT} --host ${MLFLOW_CONTAINER_IP} --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_CONTAINER_PORT}/${MLFLOW_DB_NAME} --default-artifact-root file://${MLFLOW_ARTIFICATS_DIR}
 
   db:
     image: postgres:12.3
