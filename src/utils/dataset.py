@@ -5,20 +5,32 @@ class Dataset(Enum):
     FIRE = {
         'id': 'fire',
         'index_col': "division_id",
-        'is_geo': False
+        'is_geo': False,
+        'data_columns': ["start_date", "area_burnt_ha"]
     }
     SUBDIVISION = {
         'id': 'subdivision',
         'index_col': "cid",
-        'is_geo': True
+        'is_geo': True,
+        'data_column': []
     }
     WEATHER = {
         'id': 'weather',
         'index_col': "",
-        'is_geo': False
+        'is_geo': False,
+        'data_column': []
     }
     LIGHTNING = {
         'id': 'lightning',
         'index_col': "division_id",
-        'is_geo': False
+        'is_geo': False,
+        'data_column': [
+            'multiplicity_sum', 
+            'multiplicity_min', 
+            'multiplicity_max', 
+            'multiplicity_mean', 
+            'event_strength_kiloamperes_mean', 
+            'event_strength_kiloamperes_min',
+            'event_strength_kiloamperes_max'
+        ]
     }
