@@ -254,7 +254,7 @@ class FederatedEnvironment():
                         {
                             'is_node':True, 
                             'node_id': node.id, 
-                            'target': self.d_type.name,
+                            'target': self.d_target.name,
                             'd_type': self.d_type.name,
                             'train_size': len(node.train_dataloader.dataset),
                             'test_size': len(node.test_dataloader.dataset),
