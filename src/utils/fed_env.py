@@ -26,7 +26,6 @@ class FederatedEnvironment():
             n:int,
             m:int,
             k:int=1, 
-            num_conc_node_train:int=3, 
             learning_rate:float=0.001,
             batch_size:float=2048,
     )->None:
@@ -39,7 +38,6 @@ class FederatedEnvironment():
         self.d_type = d_type
         self.d_target = d_target
         self.learning_rate = learning_rate
-        self.num_conc_node_train = num_conc_node_train
 
         # load D 
         d_data_generator = GenSubdivision(
