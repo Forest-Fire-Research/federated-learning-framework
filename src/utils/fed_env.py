@@ -247,8 +247,8 @@ class FederatedEnvironment():
 
             if log:
                 # Auto log all MLflow entities
-                # mlflow.pytorch.autolog()
-                with mlflow.start_run(nested=True):
+                mlflow.pytorch.autolog()
+                with mlflow.start_run():
                     # set model tages
                     mlflow.set_tags(
                         {
@@ -363,7 +363,7 @@ class FederatedEnvironment():
             # end mlflow run
             mlflow.end_run()
         
-    def run_pahase_1(self, epochs:int=20):
+    def run_phase_1(self, epochs:int=20):
         print(F"Started Phase 1...")
 
         # get all note indexes 
@@ -376,3 +376,4 @@ class FederatedEnvironment():
             reset=True, 
             log=True
         )
+
