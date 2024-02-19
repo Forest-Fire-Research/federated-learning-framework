@@ -4,26 +4,33 @@ from enum import Enum
 class Dataset(Enum):
     FIRE = {
         'id': 'fire',
-        'index_col': "division_id",
+        'index_col': 'division_id',
         'is_geo': False,
-        'data_columns': ["start_date", "area_burnt_ha"]
+        'date_column': 'start_date',
+        'data_columns': [
+            'start_date', 
+            'area_burnt_ha'
+        ]
     }
     SUBDIVISION = {
         'id': 'subdivision',
         'index_col': "cid",
         'is_geo': True,
-        'data_columns': []
+        'date_column': None,
+        'data_columns': None
     }
     WEATHER = {
         'id': 'weather',
-        'index_col': "",
+        'index_col': '',
         'is_geo': False,
-        'data_columns': []
+        'date_column': '',
+        'data_columns': ['']
     }
     LIGHTNING = {
         'id': 'lightning',
-        'index_col': "division_id",
+        'index_col': 'division_id',
         'is_geo': False,
+        'date_column': 'timestamp',
         'data_columns': [
             'multiplicity_sum', 
             'multiplicity_min', 
