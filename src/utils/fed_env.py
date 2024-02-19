@@ -130,29 +130,30 @@ class FederatedEnvironment():
     def get_phase_2_metrics(self, node_indexes:list):
         print("Phase 2 testing")
         metrics = {} 
-        # create trainer
-        trainer = Trainer(
-            max_epochs=1, 
-            accelerator="gpu", 
-            check_val_every_n_epoch=1, 
-            logger=False, 
-            callbacks=[],
-            enable_progress_bar=False
-        )
-        # get global train loader
-        global_train_loader = self.get_global_test_loader()
         # get metrics for each node in list "node_indexes"
         for node_index in node_indexes:
-            print(f"Phase 2 testing node {node_index}")
+            # create trainer
+            trainer = Trainer(
+                max_epochs=1, 
+                accelerator="gpu", 
+                check_val_every_n_epoch=1, 
+                logger=False, 
+                callbacks=[],
+                enable_progress_bar=False
+            )
+            # get global train loader
+            global_train_loader = self.get_global_test_loader()
             node = self.nodes[node_index]
+            print(f"Phase 2 testing node {node.id}")
             node_metrics = trainer.validate(
                 model=node.get_model(), 
                 dataloaders=global_train_loader
             )
             for metric in node_metrics[0].keys():
-                metrics[f"Phase_2_{metric}_{node_index}"] = node_metrics[0][metric]
+                metrics[f"Phase_2_{metric}_{node.id}"] = node_metrics[0][metric]
         
         del global_train_loader
+        del trainer
         return metrics
 
     def get_phase_1_metrics(self, node_index:int):
