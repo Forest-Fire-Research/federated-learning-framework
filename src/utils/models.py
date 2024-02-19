@@ -2,7 +2,7 @@ from torch.optim import Adam
 from torch.nn.functional import mse_loss
 from torch.nn import Sigmoid, LeakyReLU, Linear, ModuleList
 from pytorch_lightning import LightningModule
-from torchmetrics import R2Score
+from torchmetrics import MeanSquaredError
 from torchmetrics.classification import BinaryF1Score
 
 from utils.target_types import DTarget
@@ -25,7 +25,7 @@ class STASGeneralModel(LightningModule):
         if self.target_type == DTarget.BOOLEAN:
             self.f1_score = BinaryF1Score()
         elif self.target_type == DTarget.AREA:
-            self.r2_score = R2Score()
+            self.rmse = MeanSquaredError(squared=False)
 
         # build layers
         self.model = ModuleList()
@@ -99,8 +99,8 @@ class STASGeneralModel(LightningModule):
             self.f1_score(y_hat, y)
             self.log('f1_score', self.f1_score, on_epoch=True)
         elif self.target_type == DTarget.AREA:
-            self.r2_score(y_hat, y)
-            self.log('r2_score', self.r2_score, on_epoch=True)
+            self.rmse(y_hat, y)
+            self.log('rmse', self.rmse, on_epoch=True)
         return loss
 
     def configure_optimizers(self):
