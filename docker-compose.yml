@@ -31,7 +31,7 @@ services:
     entrypoint: mlflow server --port ${MLFLOW_CONTAINER_PORT} --host ${MLFLOW_CONTAINER_IP} --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_CONTAINER_PORT}/${MLFLOW_DB_NAME} --default-artifact-root file://${MLFLOW_ARTIFICATS_DIR}
 
   db:
-image: postgres:12.3
+    image: fed-ff-db
     container_name: fed-ff-db
     restart: always
     user: root
