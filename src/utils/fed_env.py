@@ -331,7 +331,7 @@ class FederatedEnvironment():
             })
             
             # start fed average training
-            for epoch in range(epochs):
+            for epoch in range(int(epochs//num_training_per_epoch)):
                 # select nodes 
                 node_indexes = self.randomly_sample_nodes(n=num_nodes_per_epoch)
 
@@ -363,3 +363,16 @@ class FederatedEnvironment():
             # end mlflow run
             mlflow.end_run()
         
+    def run_pahase_1(self, epochs:int=20):
+        print(F"Started Phase 1...")
+
+        # get all note indexes 
+        node_indexes = list(range(self.get_node_count()))
+
+        # start training
+        self.train_nodes(
+            node_indexes=node_indexes, 
+            epochs=epochs, 
+            reset=True, 
+            log=True
+        )
