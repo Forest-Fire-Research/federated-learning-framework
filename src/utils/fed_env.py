@@ -106,25 +106,31 @@ class FederatedEnvironment():
             for batch in loader:
                 yield batch
 
-    def get_global_metrics(self)->dict:
-        print("\n\nPrinting Global Model Metrics")
+    def get_phase_3_metrics(self)->dict:
+        print("Phase 3 testing")
         # create lighting trainer
         trainer = Trainer(
             max_epochs=1, 
             accelerator="gpu", 
             enable_progress_bar=True, 
             logger=False,
-            callbacks=[])
+            callbacks=[]
+        )
 
         # run validation loop on trainer
         metrics = trainer.validate(
             model=self.global_model, 
             dataloaders=self.get_global_test_loader()
         )
+        return_metrics = {}
+        for metric in metrics[0].keys():
+            return_metrics[f"Phase_3_{metric}"] = metrics[0][metric]
         del trainer
-        return metrics[0]
+        del metrics
+        return return_metrics
 
-    def get_nodes_metrics(self, node_indexes:list):
+    def get_phase_2_metrics(self, node_indexes:list):
+        print("Phase 2 testing")
         metrics = {} 
         # create trainer
         trainer = Trainer(
@@ -135,17 +141,44 @@ class FederatedEnvironment():
             callbacks=[],
             enable_progress_bar=False
         )
+        # get global train loader
+        global_train_loader = self.get_global_test_loader()
         # get metrics for each node in list "node_indexes"
         for node_index in node_indexes:
             node = self.nodes[node_index]
-            node_test_loader = node.test_dataloader
             node_metrics = trainer.validate(
-                model=self.global_model, 
-                dataloaders=node_test_loader
+                model=node.get_model(), 
+                dataloaders=global_train_loader
             )
             for metric in node_metrics[0].keys():
-                metrics[f"{metric}_{node.id}"] = node_metrics[0][metric]
+                metrics[f"Phase_2_{metric}_{node.id}"] = node_metrics[0][metric]
+        
+        del global_train_loader
         return metrics
+
+    def get_phase_1_metrics(self, node_index:int):
+        print(f"Phase 1 testing in node {node_index}")
+        # get node
+        node = self.nodes[node_index]
+        # create lighting trainer
+        trainer = Trainer(
+            max_epochs=1, 
+            accelerator="gpu", 
+            enable_progress_bar=True, 
+            logger=False,
+            callbacks=[]
+        )
+        # run validation loop on trainer
+        metrics = trainer.validate(
+            model=node.get_model(), 
+            dataloaders=node.test_dataloader
+        )
+        return_metrics = {}
+        for metric in metrics[0].keys():
+            return_metrics[f"Phase_1_{metric}_{node_index}"] = metrics[0][metric]
+        del trainer
+        del metrics
+        return return_metrics
 
     def get_global_model(self)->STASGeneralModel:
         feature_count = self.get_num_features()
@@ -200,8 +233,7 @@ class FederatedEnvironment():
             # get node
             node = self.nodes[node_index]
 
-            print("\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-            print(f"Training node {node.id}")
+            print(f"\n++++++++++++++++++++++++++   Training node {node.id:2.0f}   +++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
             # Initialize a trainer
             trainer = Trainer(
@@ -242,7 +274,7 @@ class FederatedEnvironment():
             del trainer
 
     def update_node_models(self, indexes)->None:
-        print("\n\n\n\nStarted updating nodes")
+        print("\nStarted updating nodes")
         for index in indexes:
             node = self.nodes[index]
 
@@ -250,7 +282,7 @@ class FederatedEnvironment():
 
             node.set_model(global_model)
             print(f"Updating node {node.id}")
-        print("\n\n")
+        print("\n")
 
     def aggregrate_global_model(self, node_indexes:list):
         for layer_index, __layer in enumerate(self.global_model.model):
@@ -316,12 +348,12 @@ class FederatedEnvironment():
                 self.aggregrate_global_model(node_indexes=node_indexes)
                 
                 # get global model metrics
-                global_metrics = self.get_global_metrics()
+                global_metrics = self.get_phase_3_metrics()
                 mlflow.log_metrics(metrics=global_metrics, step=epoch)
 
                 # get local model metrics on global data
                 all_node_index = list(range(self.get_node_count()))
-                node_metrics = self.get_nodes_metrics(all_node_index)
+                node_metrics = self.get_phase_2_metrics(all_node_index)
                 mlflow.log_metrics(metrics=node_metrics, step=epoch)
 
             # # log models
