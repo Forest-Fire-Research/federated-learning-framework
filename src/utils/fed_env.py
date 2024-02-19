@@ -143,13 +143,14 @@ class FederatedEnvironment():
         global_train_loader = self.get_global_test_loader()
         # get metrics for each node in list "node_indexes"
         for node_index in node_indexes:
+            print(f"Phase 2 testing node {node_index}")
             node = self.nodes[node_index]
             node_metrics = trainer.validate(
                 model=node.get_model(), 
                 dataloaders=global_train_loader
             )
             for metric in node_metrics[0].keys():
-                metrics[f"Phase_2_{metric}_{node.id}"] = node_metrics[0][metric]
+                metrics[f"Phase_2_{metric}_{node_index}"] = node_metrics[0][metric]
         
         del global_train_loader
         return metrics
@@ -256,6 +257,9 @@ class FederatedEnvironment():
                             'd_type': self.d_type.name,
                             'train_size': len(node.train_dataloader.dataset),
                             'test_size': len(node.test_dataloader.dataset),
+                            'n': self.n,
+                            'm': self.m,
+                            'k': self.k,
                         }
                     )
                     # fit model
@@ -326,6 +330,9 @@ class FederatedEnvironment():
                 'test_size': sum([len(node.test_dataloader.dataset)for node in self.nodes]),
                 'num_nodes_per_epoch': num_nodes_per_epoch,
                 'num_training_per_epoch':num_training_per_epoch,
+                'n': self.n,
+                'm': self.m,
+                'k': self.k,
             })
             
             # start fed average training
