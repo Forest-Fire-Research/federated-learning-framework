@@ -110,6 +110,7 @@ class FederatedEnvironment():
         trainer = Trainer(
             max_epochs=1, 
             accelerator="gpu", 
+            enable_checkpointing=False,
             enable_progress_bar=True, 
             logger=False,
             callbacks=[]
@@ -136,6 +137,7 @@ class FederatedEnvironment():
             trainer = Trainer(
                 max_epochs=1, 
                 accelerator="gpu", 
+                enable_checkpointing=False,
                 check_val_every_n_epoch=1, 
                 logger=False, 
                 callbacks=[],
@@ -240,6 +242,7 @@ class FederatedEnvironment():
                 max_epochs=epochs, 
                 accelerator="gpu", 
                 check_val_every_n_epoch=1, 
+                enable_checkpointing=False,
                 logger=False, 
                 enable_progress_bar=True,
                 callbacks=[]
