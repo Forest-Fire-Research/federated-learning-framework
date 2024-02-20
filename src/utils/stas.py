@@ -357,7 +357,7 @@ class STASDataGenerator():
         for (_fire_date, area_burn), datapoint_df in e_f:
             # append target value 
             if self.d_target == DTarget.AREA:
-                targets[data_index] = area_burn
+                targets.append(area_burn)
             elif self.d_target == DTarget.BOOLEAN:
                 targets.append(1)
             else:
