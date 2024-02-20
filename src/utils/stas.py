@@ -402,6 +402,11 @@ class STASDataGenerator():
         self.dataset_df = (self.dataset_df - self.mean) / self.std
         self.dataset_df.fillna(0, inplace=True)
 
+        # standardize targets if area
+        self.mean_y = self.target_df.mean()
+        self.std_y = self.target_df.std()
+        self.target_df = (self.target_df - self.mean_y) / self.std_y
+
         # split into datasets
         self.train_x = tensor(
             self.dataset_df.loc[self.train_index].values, 
