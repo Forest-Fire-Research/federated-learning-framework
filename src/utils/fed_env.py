@@ -80,7 +80,7 @@ class FederatedEnvironment():
         self.reset_global_model()
     
     def get_mlflow_exp_name(self):
-        return f"COMPSAC_24_FL_{self.d_type.name}"
+        return f"COMPSAC_24_FL_{self.d_type.name}_{self.d_target.name}"
 
     def __init_mlflow__(self):        
         mlflow.set_tracking_uri(self.mlflow_uri)
