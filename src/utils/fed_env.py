@@ -42,7 +42,10 @@ class FederatedEnvironment():
         # load D 
         d_data_generator = GenSubdivision(
             d_full = self.d_type,
-            db_url = db_url
+            db_url = db_url,
+            n = self.n,
+            m = self.m,
+            k = self.k,
         )
         d_map = d_data_generator.gen_subdivisions()
         del d_data_generator
@@ -50,7 +53,10 @@ class FederatedEnvironment():
         # load F
         fire_generator = GenSubdivision(
             d_full = Dataset.FIRE,
-            db_url = db_url
+            db_url = db_url,
+            n = self.n,
+            m = self.m,
+            k = self.k,
         )
         fire_d_map = fire_generator.gen_subdivisions()
         del fire_generator
