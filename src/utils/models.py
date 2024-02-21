@@ -1,6 +1,7 @@
-from torch.optim import Adam
-from torch.nn.functional import mse_loss
-from torch.nn import Sigmoid, LeakyReLU, Linear, ModuleList
+from torch import nan_to_num
+from torch.optim import Adam, SGD
+from torch.nn.functional import mse_loss, binary_cross_entropy
+from torch.nn import Sigmoid, LeakyReLU, Linear, ModuleList, BatchNorm1d
 from pytorch_lightning import LightningModule
 from torchmetrics import MeanSquaredError, R2Score
 from torchmetrics.classification import BinaryF1Score
@@ -60,6 +61,9 @@ class STASGeneralModel(LightningModule):
         self.model.append(
             LeakyReLU(negative_slope=self.relu_slope)
         )
+        # self.model.append(
+        #     BatchNorm1d(out_features)
+        # )
         return 
     
     def __add_output_block(self, in_features):
@@ -87,14 +91,20 @@ class STASGeneralModel(LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
-        loss = mse_loss(y_hat, y)
+        if self.target_type == DTarget.BOOLEAN:
+            loss = binary_cross_entropy(y_hat, y)
+        elif self.target_type == DTarget.AREA:
+            loss = mse_loss(y_hat, y)
         self.log('train_loss', loss, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
-        y_hat = self(x)
-        loss = mse_loss(y_hat, y)
+        y_hat = self(nan_to_num(x))
+        if self.target_type == DTarget.BOOLEAN:
+            loss = binary_cross_entropy(y_hat, y)
+        elif self.target_type == DTarget.AREA:
+            loss = mse_loss(y_hat, y)
         self.log('val_loss', loss, on_epoch=True)
         if self.target_type == DTarget.BOOLEAN:
             self.f1_score(y_hat, y)
@@ -107,5 +117,8 @@ class STASGeneralModel(LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = Adam(self.parameters(), lr=self.learning_rate)
+        if self.target_type == DTarget.BOOLEAN:
+            optimizer = SGD(self.parameters(), lr=self.learning_rate)
+        elif self.target_type == DTarget.AREA:
+            optimizer = Adam(self.parameters(), lr=self.learning_rate)
         return optimizer
