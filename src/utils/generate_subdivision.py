@@ -37,7 +37,7 @@ class GenSubdivision():
         return query
     
     def __get_weather_data_query(self) -> str:
-        query = ""
+        query = """select * from "W_ms";"""
         return query
     
     def __read_geodata(

@@ -21,9 +21,9 @@ class Dataset(Enum):
     }
     WEATHER = {
         'id': 'weather',
-        'index_col': '',
+        'index_col': 'division_id',
         'is_geo': False,
-        'date_column': '',
+        'date_column': 'date',
         'data_columns': ['']
     }
     LIGHTNING = {
