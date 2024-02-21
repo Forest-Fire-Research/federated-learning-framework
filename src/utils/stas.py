@@ -1,6 +1,6 @@
 from pandas import DataFrame, DateOffset, merge, date_range
 from concurrent.futures import ThreadPoolExecutor
-from torch import tensor, float32
+from torch import tensor, nan_to_num, float32
 import sys
 from utils.dataset import Dataset
 from utils.target_types import DTarget
@@ -411,27 +411,28 @@ class STASDataGenerator():
         self.dataset_df.fillna(0, inplace=True)
 
         # standardize targets if area
-        self.mean_y = self.target_df.mean()
-        self.std_y = self.target_df.std()
-        self.target_df = (self.target_df - self.mean_y) / self.std_y
+        if self.d_target == DTarget.AREA:
+            self.mean_y = self.target_df.mean()
+            self.std_y = self.target_df.std()
+            self.target_df = (self.target_df - self.mean_y) / self.std_y
 
         # split into datasets
-        self.train_x = tensor(
+        self.train_x = nan_to_num(tensor(
             self.dataset_df.loc[self.train_index].values, 
             dtype=float32
-        )
-        self.train_y = tensor(
+        ))
+        self.train_y = nan_to_num(tensor(
             self.target_df.loc[self.train_index].values, 
             dtype=float32
-        )
-        self.test_x = tensor(
+        ))
+        self.test_x = nan_to_num(tensor(
             self.dataset_df.loc[self.test_index].values,
             dtype=float32
-        )
-        self.test_y = tensor(
+        ))
+        self.test_y = nan_to_num(tensor(
             self.target_df.loc[self.test_index].values,
             dtype=float32
-        )
+        ))
 
         # discard excess info
         del self.dataset_df
