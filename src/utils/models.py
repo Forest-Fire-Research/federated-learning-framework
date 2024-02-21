@@ -33,22 +33,22 @@ class STASGeneralModel(LightningModule):
         self.model = ModuleList()
         self.__add_linear_hidden_block(
             in_features=int(1.00*num_features),
-            out_features=int(1.00*num_features)
+            out_features=int(1.00*num_features*4)
         ),
         self.__add_linear_hidden_block(
-            in_features=int(1.00*num_features),
-            out_features=int(0.75*num_features)
+            in_features=int(1.00*num_features*4),
+            out_features=int(0.75*num_features*4)
         ),
         self.__add_linear_hidden_block(
-            in_features=int(0.75*num_features),
-            out_features=int(0.50*num_features)
+            in_features=int(0.75*num_features*4),
+            out_features=int(0.50*num_features*4)
         ),
         self.__add_linear_hidden_block(
-            in_features=int(0.50*num_features),
-            out_features=int(0.25*num_features)
+            in_features=int(0.50*num_features*4),
+            out_features=int(0.25*num_features*4)
         ),
         self.__add_output_block(
-            in_features=int(0.25*num_features)
+            in_features=int(0.25*num_features*4)
         )
     
     def __add_linear_hidden_block(self, in_features, out_features):
