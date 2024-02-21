@@ -48,16 +48,24 @@ class STASDataGenerator():
             d_p = self._get_k_nearest_station_data()
         elif self.d_type == Dataset.LIGHTNING:
             d_p = self._get_aggregrated_dataset()
-        # adding extra compuation here to reduce repeating the same operation late 
-        d_p = merge(
-            left = self.f,
-            right = self.d,
-            on = 'division_id'
-        )
+            # adding extra compuation here to reduce repeating the same operation late 
+            d_p = merge(
+                left = self.f,
+                right = self.d,
+                on = 'division_id'
+            )
         return d_p
 
-    def _get_k_nearest_station_data(self):
-        pass
+    def _get_k_nearest_station_data(self) -> DataFrame:
+        """ Generate the k nearest datapoints 
+
+        Returns:
+            DataFrame: K Nearest Station data
+        """
+        # TODO: The generation code does not group by K nearest station. That need to be done. works for K=1
+        # to save on computation the process was cached during subdivison generation
+        assert self.d_type == Dataset.WEATHER, f"ONLY station based data can be passed to this function!"
+        return self.d
 
     def _get_aggregrated_dataset(self) -> DataFrame:
         """ Aggregrate the datapoints in the dataset
