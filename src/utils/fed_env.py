@@ -12,8 +12,8 @@ from copy import deepcopy
 from torch import no_grad
 from pytorch_lightning import Trainer
 
-from torch import set_float32_matmul_precision
-set_float32_matmul_precision('high')
+# from torch import set_float32_matmul_precision
+# set_float32_matmul_precision('high')
 
 
 class FederatedEnvironment():
