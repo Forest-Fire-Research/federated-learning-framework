@@ -20,6 +20,7 @@ class FederatedNode():
             learning_rate:float=0.001, 
             batch_size:int=2048,
             workers:int=4,
+            multiplyer:int=1,
     ):
         self.id = _id
         print(f"Initializing id: {self.id:3}")
@@ -67,7 +68,8 @@ class FederatedNode():
         self.model = STASGeneralModel(
             num_features=feature_count, 
             target_type=d_target,
-            learning_rate=learning_rate
+            learning_rate=learning_rate,
+            multiplyer=multiplyer,
         )
 
         # print(f"Initialization Finished for id: {self.id:3}")

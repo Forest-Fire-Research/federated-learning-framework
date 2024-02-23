@@ -1,12 +1,14 @@
 from torch import nan_to_num
 from torch.optim import Adam, SGD
 from torch.nn.functional import mse_loss, binary_cross_entropy
-from torch.nn import Sigmoid, LeakyReLU, Linear, ModuleList, BatchNorm1d
+from torch.nn import Sigmoid, LeakyReLU, Linear, ModuleList, BatchNorm1d, Tanh
 from pytorch_lightning import LightningModule
 from torchmetrics import MeanSquaredError, R2Score
 from torchmetrics.classification import BinaryF1Score
 
 from utils.target_types import DTarget
+
+
 
 class STASGeneralModel(LightningModule):
     def __init__(
@@ -14,7 +16,8 @@ class STASGeneralModel(LightningModule):
             num_features:int, 
             target_type:DTarget,
             relu_slope:float=0.01, 
-            learning_rate:float=0.01
+            learning_rate:float=0.01,
+            multiplyer:int=1
     ):
         super().__init__()
         # parameter intilization
@@ -33,22 +36,22 @@ class STASGeneralModel(LightningModule):
         self.model = ModuleList()
         self.__add_linear_hidden_block(
             in_features=int(1.00*num_features),
-            out_features=int(1.00*num_features*4)
+            out_features=int(1.00*num_features*multiplyer)
         ),
         self.__add_linear_hidden_block(
-            in_features=int(1.00*num_features*4),
-            out_features=int(0.75*num_features*4)
+            in_features=int(1.00*num_features*multiplyer),
+            out_features=int(0.75*num_features*multiplyer)
         ),
         self.__add_linear_hidden_block(
-            in_features=int(0.75*num_features*4),
-            out_features=int(0.50*num_features*4)
+            in_features=int(0.75*num_features*multiplyer),
+            out_features=int(0.50*num_features*multiplyer)
         ),
         self.__add_linear_hidden_block(
-            in_features=int(0.50*num_features*4),
-            out_features=int(0.25*num_features*4)
+            in_features=int(0.50*num_features*multiplyer),
+            out_features=int(0.25*num_features*multiplyer)
         ),
         self.__add_output_block(
-            in_features=int(0.25*num_features*4)
+            in_features=int(0.25*num_features*multiplyer)
         )
     
     def __add_linear_hidden_block(self, in_features, out_features):
@@ -61,9 +64,9 @@ class STASGeneralModel(LightningModule):
         self.model.append(
             LeakyReLU(negative_slope=self.relu_slope)
         )
-        # self.model.append(
-        #     BatchNorm1d(out_features)
-        # )
+        self.model.append(
+            BatchNorm1d(out_features)
+        )
         return 
     
     def __add_output_block(self, in_features):
@@ -75,8 +78,9 @@ class STASGeneralModel(LightningModule):
         )
         if self.target_type == DTarget.BOOLEAN:
             self.model.append(Sigmoid())
-        elif self.target_type == DTarget.AREA:
-            self.model.append(LeakyReLU(negative_slope=self.relu_slope))
+        # elif self.target_type == DTarget.AREA:
+        #     self.model.append(Tanh())
+            # self.model.append(LeakyReLU(negative_slope=self.relu_slope))
 
         return 
 

@@ -28,6 +28,7 @@ class FederatedEnvironment():
             k:int=1, 
             learning_rate:float=0.001,
             batch_size:float=2048,
+            multiplyer:int=1
     )->None:
 
         self.k = k
@@ -38,6 +39,9 @@ class FederatedEnvironment():
         self.d_type = d_type
         self.d_target = d_target
         self.learning_rate = learning_rate
+        self.batch_size = batch_size
+
+        self.multiplyer = multiplyer
 
         # load D 
         d_data_generator = GenSubdivision(
@@ -100,7 +104,8 @@ class FederatedEnvironment():
         self.global_model = STASGeneralModel(
             num_features=feature_count, 
             target_type=self.d_target,
-            learning_rate=self.learning_rate
+            learning_rate=self.learning_rate,
+            multiplyer=self.multiplyer
         )
 
     def get_global_test_loader(self):
@@ -154,7 +159,7 @@ class FederatedEnvironment():
             node = self.nodes[node_index]
             print(f"Phase 2 testing node {node.id}")
             node_metrics = trainer.validate(
-                model=node.get_model(), 
+                model=node.model, 
                 dataloaders=global_train_loader
             )
             for metric in node_metrics[0].keys():
@@ -178,7 +183,7 @@ class FederatedEnvironment():
         )
         # run validation loop on trainer
         metrics = trainer.validate(
-            model=node.get_model(), 
+            model=node.model, 
             dataloaders=node.test_dataloader
         )
         return_metrics = {}
@@ -194,7 +199,8 @@ class FederatedEnvironment():
         model = STASGeneralModel(
             num_features=feature_count, 
             target_type=self.d_target,
-            learning_rate=self.learning_rate
+            learning_rate=self.learning_rate,
+            multiplyer=self.multiplyer
         )
         # loading a DEEPCOPY of the state dict into the model
         model.load_state_dict(deepcopy(self.global_model.state_dict()))
@@ -267,22 +273,44 @@ class FederatedEnvironment():
                             'd_type': self.d_type.name,
                             'train_size': len(node.train_dataloader.dataset),
                             'test_size': len(node.test_dataloader.dataset),
+                            'multiplyer': self.multiplyer,
                             'n': self.n,
                             'm': self.m,
                             'k': self.k,
                         }
                     )
+
+                    mlflow.log_params({
+                        'lr': self.learning_rate, 
+                        'batch_size': self.batch_size 
+                    })
+
                     # fit model
                     trainer.fit(
-                        model=node.get_model(), 
+                        model=node.model, 
                         train_dataloaders=node.train_dataloader, 
                         val_dataloaders=node.test_dataloader
                     )
+
+                    # log dataset
+                    mlflow.log_input(
+                        dataset=mlflow.data.from_numpy(node.test_dataloader.dataset.tensors[0].numpy()),
+                        context='testing_x'
+                    )
+
+                    mlflow.log_input(
+                        dataset=mlflow.data.from_numpy(node.test_dataloader.dataset.tensors[1].numpy()),
+                        context='testing_y'
+                    )
+
+                    # log model
+                    mlflow.pytorch.log_model(node.model, "model")
+                    
                     # end mlflow logging
                     mlflow.end_run()
             else:
                 # only run training 
-                trainer.fit(model=node.get_model(), train_dataloaders=node.train_dataloader)
+                trainer.fit(model=node.model, train_dataloaders=node.train_dataloader)
             del trainer
 
     def update_node_models(self, indexes)->None:
@@ -305,7 +333,7 @@ class FederatedEnvironment():
                 with no_grad():
                     # average weights and bias for all node models
                     for node_index in node_indexes:
-                        node_model = self.nodes[node_index].get_model()
+                        node_model = self.nodes[node_index].model
                         node_layer_weight, node_layer_bias = node_model.model[layer_index].parameters()
                         gloabl_layer_weight += node_layer_weight
                         gloabl_layer_bias += node_layer_bias
@@ -340,11 +368,17 @@ class FederatedEnvironment():
                 'test_size': sum([len(node.test_dataloader.dataset)for node in self.nodes]),
                 'num_nodes_per_epoch': num_nodes_per_epoch,
                 'num_training_per_epoch':num_training_per_epoch,
+                'multiplyer': self.multiplyer,
                 'n': self.n,
                 'm': self.m,
                 'k': self.k,
             })
             
+            mlflow.log_params({
+                'lr': self.learning_rate,
+                'batch_size': self.batch_size 
+            })
+
             # start fed average training
             for epoch in range(int(epochs//num_training_per_epoch)):
                 # select nodes 
@@ -371,9 +405,8 @@ class FederatedEnvironment():
                 node_metrics = self.get_phase_2_metrics(all_node_index)
                 mlflow.log_metrics(metrics=node_metrics, step=epoch)
 
-            # # log models
-            # mlflow.pytorch.log_model(self.get_global_model(), "model")
-
+            # log models
+            mlflow.pytorch.log_model(self.get_global_model(), "model")
 
             # end mlflow run
             mlflow.end_run()
