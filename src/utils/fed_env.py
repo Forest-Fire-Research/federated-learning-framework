@@ -9,8 +9,9 @@ from utils.dataset import Dataset
 
 import mlflow
 from copy import deepcopy
-from torch import no_grad
+from torch import no_grad, cat
 from pytorch_lightning import Trainer
+from torch.utils.data import TensorDataset, DataLoader
 
 # from torch import set_float32_matmul_precision
 # set_float32_matmul_precision('high')
@@ -109,11 +110,35 @@ class FederatedEnvironment():
         )
 
     def get_global_test_loader(self):
+        test_x = []
+        test_y = []
         num_nodes = self.get_node_count()
         for node_index in range(num_nodes):
-            loader = self.nodes[node_index].test_dataloader
-            for batch in loader:
-                yield batch
+            node = self.nodes[node_index]
+            node_test_x = node.test_dataloader.dataset.tensors[0]
+            node_test_y = node.test_dataloader.dataset.tensors[1]
+            test_x.append(node_test_x)
+            test_y.append(node_test_y)
+        del num_nodes
+        del node
+        del node_test_x
+        del node_test_y
+
+        dataset = TensorDataset(
+            cat(test_x, dim = 0),
+            cat(test_y, dim = 0)
+        )
+
+        dataloader = DataLoader(
+            dataset=dataset,
+            batch_size=self.batch_size,
+            num_workers=2,
+            shuffle=False
+        )
+
+        del dataset
+
+        return dataloader
 
     def get_phase_3_metrics(self)->dict:
         print("Phase 3 testing")
@@ -142,6 +167,8 @@ class FederatedEnvironment():
     def get_phase_2_metrics(self, node_indexes:list):
         print("Phase 2 testing")
         metrics = {} 
+        # get global train loader
+        global_test_loader = self.get_global_test_loader()
         # get metrics for each node in list "node_indexes"
         for node_index in node_indexes:
             # create trainer
@@ -154,8 +181,6 @@ class FederatedEnvironment():
                 callbacks=[],
                 enable_progress_bar=False
             )
-            # get global train loader
-            global_test_loader = self.get_global_test_loader()
             node = self.nodes[node_index]
             print(f"Phase 2 testing node {node.id}")
             node_metrics = trainer.validate(
@@ -165,7 +190,7 @@ class FederatedEnvironment():
             for metric in node_metrics[0].keys():
                 metrics[f"Phase_2_{metric}_{node.id}"] = node_metrics[0][metric]
         
-        del global_train_loader
+        del global_test_loader
         del trainer
         return metrics
 
