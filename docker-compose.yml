@@ -9,7 +9,6 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.mlflow
-      network: host
     env_file:
       - .env
     environment:
@@ -28,7 +27,7 @@ services:
       - "${MLFLOW_HOST_PORT}:${MLFLOW_CONTAINER_PORT}"
     volumes:
       - ${HOST_VOLUME_MOUNT_POINT}${MLFLOW_ARTIFICATS_DIR}:${MLFLOW_ARTIFICATS_DIR}:Z
-    entrypoint: mlflow server --port ${MLFLOW_CONTAINER_PORT} --host ${MLFLOW_CONTAINER_IP} --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_CONTAINER_PORT}/${MLFLOW_DB_NAME} --default-artifact-root file://${MLFLOW_ARTIFICATS_DIR}
+    entrypoint: mlflow server --port ${MLFLOW_CONTAINER_PORT} --host ${MLFLOW_CONTAINER_IP} --artifacts-destination file://${MLFLOW_ARTIFICATS_DIR} --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_CONTAINER_PORT}/${MLFLOW_DB_NAME} 
 
   db:
     image: fed-ff-db
