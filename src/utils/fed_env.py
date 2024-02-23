@@ -155,12 +155,12 @@ class FederatedEnvironment():
                 enable_progress_bar=False
             )
             # get global train loader
-            global_train_loader = self.get_global_test_loader()
+            global_test_loader = self.get_global_test_loader()
             node = self.nodes[node_index]
             print(f"Phase 2 testing node {node.id}")
             node_metrics = trainer.validate(
                 model=node.model, 
-                dataloaders=global_train_loader
+                dataloaders=global_test_loader
             )
             for metric in node_metrics[0].keys():
                 metrics[f"Phase_2_{metric}_{node.id}"] = node_metrics[0][metric]
