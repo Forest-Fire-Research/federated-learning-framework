@@ -210,18 +210,48 @@ class GenSubdivision():
         else:
             raise ValueError("Invalid return dataset type!!!")
     
+    def __get_full_data_cache_table_name(self) -> str:
+        return f"{self.d_full.name}_K{self.k}_N{self.n}_M{self.m}"
+
+    def __get_full_data_cache_query(self) -> str:
+        table_name = self.__get_full_data_cache_table_name()
+        return f"""SELECT * from "{table_name}"; """
+    
     def gen_subdivisions(self):
-        data_query = self.__get_data_query()
-        if self.d_full.value['is_geo']:
-            data = self.__read_geodata(
-                data_query,
+        # Check if data is cached 
+        cache_table_name = self.__get_full_data_cache_table_name()
+        table_exists = inspect(self.engine).has_table(cache_table_name, schema="public")
+        if table_exists:
+            print(f"Cache of {cache_table_name} found!")
+            # load cache data
+            data = read_sql(
+                sql = self.__get_full_data_cache_query(),
+                con = self.engine,
                 index_col = self.d_full.value['index_col']
             )
-        else:
-            data = self.__read_data(
-                data_query,
-                index_col = self.d_full.value['index_col']
+        else: 
+            print(f"Cache of {cache_table_name} not found!")
+            # process data 
+            data_query = self.__get_data_query()
+            if self.d_full.value['is_geo']:
+                data = self.__read_geodata(
+                    data_query,
+                    index_col = self.d_full.value['index_col']
+                )
+            else:
+                data = self.__read_data(
+                    data_query,
+                    index_col = self.d_full.value['index_col']
+                )
+            
+            # cache data
+            data.to_sql(
+                name=cache_table_name, 
+                con=self.engine, 
+                if_exists='replace', 
+                index=True
             )
+        
         d_map = data.groupby(
             by = self.d_full.value['index_col']
         )
