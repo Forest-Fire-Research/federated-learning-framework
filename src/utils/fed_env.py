@@ -89,6 +89,11 @@ class FederatedEnvironment():
 
         # init global model 
         self.reset_global_model()
+
+    def set_lr(self, lr:float) -> None:
+        self.learning_rate = lr
+        self.__reset_models()
+
     
     def get_mlflow_exp_name(self):
         return f"COMPSAC_24_FL_{self.d_type.name}_{self.d_target.name}"

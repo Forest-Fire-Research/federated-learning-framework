@@ -120,6 +120,10 @@ class STASGeneralModel(LightningModule):
             self.log('r2_score', self.r2_score, on_epoch=True)
         return loss
 
+    def set_lr(self, lr:float) -> None:
+        self.learning_rate = lr
+        self.configure_optimizers()
+
     def configure_optimizers(self):
         if self.target_type == DTarget.BOOLEAN:
             optimizer = SGD(self.parameters(), lr=self.learning_rate)

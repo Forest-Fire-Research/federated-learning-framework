@@ -73,6 +73,9 @@ class FederatedNode():
         )
 
         # print(f"Initialization Finished for id: {self.id:3}")
+    
+    def set_lr(self, lr):
+        self.model.set_lr(lr=lr)
 
     def get_model(self):
         return self.model
