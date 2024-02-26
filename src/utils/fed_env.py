@@ -441,11 +441,12 @@ class FederatedEnvironment():
             # end mlflow run
             mlflow.end_run()
         
-    def run_phase_1(self, epochs:int=20):
+    def run_phase_1(self, epochs:int=20, node_indexes:list=None):
         print(F"Started Phase 1...")
 
         # get all note indexes 
-        node_indexes = list(range(self.get_node_count()))
+        if node_indexes is None:
+            node_indexes = list(range(self.get_node_count()))
 
         # start training
         self.train_nodes(

@@ -79,7 +79,10 @@ class STASGeneralModel(LightningModule):
         if self.target_type == DTarget.BOOLEAN:
             self.model.append(Sigmoid())
         elif self.target_type == DTarget.AREA:
-            # self.model.append(Tanh())
+            self.model.append(Tanh())
+            # self.model.append(
+            #     BatchNorm1d(1)
+            # )
             self.model.append(LeakyReLU(negative_slope=self.relu_slope))
 
         return 
