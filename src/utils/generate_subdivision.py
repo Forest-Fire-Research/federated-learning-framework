@@ -15,6 +15,16 @@ class GenSubdivision():
             s:Dataset = Dataset.SUBDIVISION,
             db_url:URL = None
     ) -> None:
+        """ Constructor for the subdivision class
+
+        Args:
+            n (int): num of historical days to consider in a datapoint
+            m (int): num of months to look back at to consider non fire points
+            k (int): num of nearest stations
+            d_full (Dataset): type of dataset beeing processed into subdivisions
+            s (Dataset, optional): subdivion data type. Defaults to Dataset.SUBDIVISION.
+            db_url (URL, optional): database connection info. Defaults to None.
+        """
         self.n = n
         self.m = m
         self.k = k
