@@ -1,6 +1,6 @@
 # A Federated Learning Framework based on Spatio-Temporal Agnostic Subsampling (STAS) for Forest Fire Prediction
 
-This repository contains code associated with the paper titled "[A Federated Learning Framework based on Spatio-Temporal Agnostic Subsampling (STAS) for Forest Fire Prediction](https://ieeexplore.ieee.org/document/10633472)" presented in [IEEE 48th Annual Computers, Software, and Applications Conference (COMPSAC)](https://ieeecompsac.computer.org/2024/) at the Nakanoshima Center in Osaka University, Osaka, Japan.
+This repository contains code associated with the paper titled "[A Federated Learning Framework based on Spatio-Temporal Agnostic Subsampling (STAS) for Forest Fire Prediction](https://ieeexplore.ieee.org/document/10633472)" presented in [IEEE 48th Annual Computers, Software, and Applications Conference (COMPSAC)](https://ieeecompsac.computer.org/2024/) at the Nakanoshima Center in [Osaka University](https://www.osaka-u.ac.jp/en), Osaka, Japan.
 
 
 ## Data 
