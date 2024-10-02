@@ -23,14 +23,14 @@ The code for preprocessing is available in `notebooks > data_preprocessing` ([he
 ## License
 
 Licensing details are provided [here](LICENSE).
-You are NOT allowed to make any unauthorized copy of the code
+> You are NOT allowed to make any unauthorized copy of the code
 
 
 ## Contact
 
 If you have any questions, please get in touch with us at: `mutakabbir@cmail.carleton.ca`.
-Use of your official email is needed due to spam filtering.
-The subject should be `COMPSAC24 - <Query>` where the `<Query>` is a short description of the question you have.
+> Use of your official email is needed due to spam filtering.
+> * The subject should be `COMPSAC24 - <Query>` where the `<Query>` is a short description of the question you have.
 
 
 ## Citation / Referencing 
