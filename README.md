@@ -17,7 +17,7 @@ The data used in this research is available as follows:
 The work flow for the preprocessing is given in the figure below
 ![](assets/data_processing.png)
 
-The code for preprocessing is available in notebooks > [data_preprocessing](notebooks/data_preprocessing).
+The code for preprocessing is available in `notebooks > data_preprocessing` ([here](notebooks/data_preprocessing)).
 
 
 ## License
@@ -28,9 +28,9 @@ You are NOT allowed to make any unauthorized copy of the code
 
 ## Contact
 
-If you have any questions, please get in touch with us at: mutakabbir@cmail.carleton.ca.
+If you have any questions, please get in touch with us at: `mutakabbir@cmail.carleton.ca`.
 Use of your official email is needed due to spam filtering.
-The subject should be "COMPSAC24 - <Query>" where the "<Query>" is a short description of the question you have.
+The subject should be `COMPSAC24 - <Query>` where the `<Query>` is a short description of the question you have.
 
 
 ## Citation / Referencing 
